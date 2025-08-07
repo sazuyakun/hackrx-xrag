@@ -2,9 +2,15 @@ from graphr.helper_functions import *
 from graphr.evaluation.evalute_rag import *
 from sklearn.metrics.pairwise import cosine_similarity
 
+
+pinecone.init(
+api_key=os.environ.get("PINECONE_API_KEY"),
+environment=os.environ.get("PINECONE_ENVIRONMENT"))
+
+index_name = "bajaj-hack"
 # Define the DocumentProcessor class
 class DocumentProcessor:
-    def __init__(self):
+    def _init_(self):
         """
         Initializes the DocumentProcessor with a text splitter and OpenAI embeddings.
 
@@ -28,7 +34,8 @@ class DocumentProcessor:
           - vector_store (FAISS): A FAISS vector store created from the split document chunks and their embeddings.
         """
         splits = self.text_splitter.split_documents(documents)
-        vector_store = FAISS.from_documents(splits, self.embeddings)
+        # vector_store = FAISS.from_documents(splits, self.embeddings)
+        vectorstore = Pinecone.from_documents(chunks, embeddings, index_name=index_name)
         return splits, vector_store
 
     def create_embeddings_batch(self, texts, batch_size=32):
