@@ -1,7 +1,9 @@
+import os
 from langchain_community.document_loaders import PyPDFLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_openai import OpenAIEmbeddings
-from langchain_community.vectorstores import FAISS
+from langchain_community.vectorstores import FAISS, PineconeVectorStore
+from pinecone import Pinecone as PineconeClient
 # from langchain_core.pydantic_v1 import BaseModel, Field
 from pydantic import BaseModel, Field
 from langchain_core.prompts import PromptTemplate
@@ -14,6 +16,9 @@ import random
 import textwrap
 import numpy as np
 from enum import Enum
+
+pc = PineconeClient(api_key="pcsk_5TSiwB_4nsVvegqutKC3bJZsCCjZ3Gbf4MyTvrnKeEBaJyYLHdwvrN1rDxWZfXu5gvYnqH")
+index = pc.Index("bajaj-hack")
 
 
 def replace_t_with_space(list_of_documents):
@@ -70,8 +75,14 @@ def encode_pdf(path,chunk_size=1000, chunk_overlap=200):
     texts = text_splitter.split_documents(documents)
     cleaned_texts = replace_t_with_space(texts)
 
+    # Create embeddings and vector store
+
     embeddings = OpenAIEmbeddings()
-    vectorstore = FAISS.from_documents(cleaned_texts, embeddings)
+    # vectorstore = FAISS.from_documents(cleaned_texts, embeddings)
+    vectorstore = PineconeVectorStore(
+    index=index_name,
+    embedding=OpenAIEmbeddings())
+    vectorstore.add_documents(cleaned_texts)
 
     return vectorstore
 
@@ -92,6 +103,7 @@ def encode_from_string(content,chunk_size=1000, chunk_overlap=200):
         ValueError: If the input content is not valid.
         RuntimeError: If there is an error during the encoding process.
     """
+
     if not isinstance(content, str) or not content.strip():
         raise ValueError("Content must be a non-empty string.")
 
@@ -117,7 +129,11 @@ def encode_from_string(content,chunk_size=1000, chunk_overlap=200):
 
         # Generate embeddings and create the vector store
         embeddings = OpenAIEmbeddings()
-        vectorstore = FAISS.from_documents(chunks, embeddings)
+        # vectorstore = FAISS.from_documents(chunks, embeddings)
+        vectorstore = PineconeVectorStore(
+        index=index_name,
+        embedding=OpenAIEmbeddings())
+        vectorstore.add_documents(embeddings)
 
     except Exception as e:
         raise RuntimeError(f"An error occurred during the encoding process: {str(e)}")

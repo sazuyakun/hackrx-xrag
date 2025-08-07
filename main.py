@@ -1,5 +1,10 @@
 import os
 from dotenv import load_dotenv
+from fastapi import FastAPI, File, UploadFile, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from pymongo.mongo_client import MongoClient
+from pymongo.server_api import ServerApi
 
 load_dotenv()
 # print(os.getenv('OPENAI_API_KEY'))
@@ -8,11 +13,6 @@ load_dotenv()
 os.environ["OPENAI_API_KEY"] = os.getenv('OPENAI_API_KEY')
 os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
 
-from fastapi import FastAPI, File, UploadFile, HTTPException
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
-from pymongo.mongo_client import MongoClient
-from pymongo.server_api import ServerApi
 import networkx as nx
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_core.messages import AIMessage  # Add this import at the top

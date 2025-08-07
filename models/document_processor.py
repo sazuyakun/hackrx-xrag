@@ -2,7 +2,6 @@ from graphr.helper_functions import *
 from graphr.evaluation.evalute_rag import *
 from sklearn.metrics.pairwise import cosine_similarity
 
-
 # Define the DocumentProcessor class
 class DocumentProcessor:
     def __init__(self):
@@ -29,7 +28,11 @@ class DocumentProcessor:
           - vector_store (FAISS): A FAISS vector store created from the split document chunks and their embeddings.
         """
         splits = self.text_splitter.split_documents(documents)
-        vector_store = FAISS.from_documents(splits, self.embeddings)
+        # vector_store = FAISS.from_documents(splits, self.embeddings)
+        vector_store = PineconeVectorStore(
+        index=index,
+        embedding=OpenAIEmbeddings())
+        vector_store.add_documents(splits)
         return splits, vector_store
 
     def create_embeddings_batch(self, texts, batch_size=32):
