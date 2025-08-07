@@ -11,6 +11,7 @@ index_name = "bajaj-hack"
 # Define the DocumentProcessor class
 class DocumentProcessor:
     def _init_(self):
+    def _init_(self):
         """
         Initializes the DocumentProcessor with a text splitter and OpenAI embeddings.
 
@@ -34,6 +35,8 @@ class DocumentProcessor:
           - vector_store (FAISS): A FAISS vector store created from the split document chunks and their embeddings.
         """
         splits = self.text_splitter.split_documents(documents)
+        # vector_store = FAISS.from_documents(splits, self.embeddings)
+        vectorstore = Pinecone.from_documents(chunks, embeddings, index_name=index_name)
         # vector_store = FAISS.from_documents(splits, self.embeddings)
         vectorstore = Pinecone.from_documents(chunks, embeddings, index_name=index_name)
         return splits, vector_store
