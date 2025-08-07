@@ -1,6 +1,7 @@
 from graphr.helper_functions import *
 from graphr.evaluation.evalute_rag import *
 from sklearn.metrics.pairwise import cosine_similarity
+import pinecone
 
 
 pinecone.init(
